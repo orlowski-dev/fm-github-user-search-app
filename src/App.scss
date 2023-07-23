@@ -136,6 +136,27 @@ main {
       font-weight: 700;
       cursor: pointer;
       border-radius: 10px;
+
+      &.loading {
+        position: relative;
+
+        span {
+          opacity: 0;
+        }
+
+        &::after {
+          content: '';
+          height: 24px;
+          width: 24px;
+          background-image: url('./assets/svg/progress.svg');
+          background-repeat: no-repeat;
+          background-size: 24px;
+          position: absolute;
+          top: calc(50% - 12px);
+          left: calc(50% - 12px);
+          animation: 1s rotate360 infinite;
+        }
+      }
     }
   }
 
@@ -410,5 +431,15 @@ main {
         margin-top: 28px;
       }
     }
+  }
+}
+
+@keyframes rotate360 {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(360deg);
   }
 }

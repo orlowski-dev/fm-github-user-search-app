@@ -1,7 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.scss'
 import { companyIcon, locationIcon, moonIcon, searchIcon, sunIcon, twitterIcon, websiteIcon } from './assets'
 import { ReactSVG } from 'react-svg'
+import { Octokit } from '@octokit/core'
+
+const octokit = new Octokit({
+  auth: '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'
+})
+
+
 
 const getColorScheme = (): string => {
   const colorSchemeInLocalStorage = localStorage.getItem('colorScheme')
@@ -10,9 +17,15 @@ const getColorScheme = (): string => {
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
-export default function App() {
-  const [colorScheme, setColorScheme] = useState<string>(getColorScheme())
+interface IUserData {
+  avatarUrl: string,
+  name: string | null,
+  login: string,
+}
 
+export default function App() {
+  // color scheme
+  const [colorScheme, setColorScheme] = useState<string>(getColorScheme())
   useEffect(() => {
     if (colorScheme === 'dark') {
       document.body.className = 'dark'
@@ -23,7 +36,59 @@ export default function App() {
     }
   }, [colorScheme])
 
+  // user data
+  const [userData, setUserData] = useState<IUserData | null>(null)
+  const getDataFromAPI = async (username: string) => {
+    await octokit.request('GET /users/{username}', {
+      username: username,
+      headers: {
+        'X-GitHub-Api-Version': '2022-11-28'
+      }
+    }).then((response) => {
+      const responseData = response.data;
+      console.log(responseData);
+
+      setUserData({
+        avatarUrl: responseData.avatar_url,
+        name: responseData.name,
+        login: responseData.login
+      })
+
+
+    }).catch(() => {
+      console.log('cannot fetch data, 404')
+    })
+  }
+
+  // get data after render
+  useEffect(() => {
+    getDataFromAPI('octocat')
+  }, [])
+
+  // form
+  const [isBtnDisabled, setIsBtnDisabled] = useState(false)
+  useEffect(() => {
+    isBtnDisabled ? formElems.buttonRef.current?.classList.add('loading') : formElems.buttonRef.current?.removeAttribute('class')
+  }, [isBtnDisabled])
+  const formElems = {
+    inputRef: useRef<HTMLInputElement>(null),
+    errorSpanRef: useRef<HTMLSpanElement>(null),
+    buttonRef: useRef<HTMLButtonElement>(null)
+  }
+  const handleSearchFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    const inputValue: string | null | undefined = formElems.inputRef.current?.value
+    if (!inputValue) return
+    if (inputValue.length < 3) return
+
+    setIsBtnDisabled(true)
+    await getDataFromAPI(inputValue)
+    setIsBtnDisabled(false)
+  }
+
   return (<>
+    {/* header */}
     <header className='main-header container d-fl ai-c jc-sb'>
       <div className="brand-area">
         <span className={colorScheme === 'dark' ? 'dark' : undefined}>devfinder</span>
@@ -39,9 +104,10 @@ export default function App() {
       </div>
     </header>
     <main>
+      {/* searchbar section */}
       <section className={`searchbar-section container w-bg ${colorScheme}`}>
         <h2 className='visually-hidden'>Searchbar section</h2>
-        <form>
+        <form onSubmit={handleSearchFormSubmit}>
           <img src={searchIcon} alt='search icon' />
           <label>
             <span className="visually-hidden">GitHub username</span>
@@ -50,23 +116,33 @@ export default function App() {
               id="username"
               placeholder="Search GitHub username.."
               className={colorScheme === 'dark' ? 'dark' : undefined}
+              ref={formElems.inputRef}
+              autoComplete='off'
             />
           </label>
           <span
             className="error"
             id='form-error'
+            ref={formElems.errorSpanRef}
           ></span>
-          <button>Search</button>
+          <button
+            disabled={isBtnDisabled}
+            ref={formElems.buttonRef}
+            className='loading'
+          >
+            <span>Search</span>
+          </button>
         </form>
       </section>
+      {/* result section & user info */}
       <section className={`result-section container w-bg ${colorScheme}`}>
         <h2 className="visually-hidden">Result section</h2>
         <article className="user-info">
           <div className="user-picture-area">
-            <img src="/Oval.png" alt="" />
+            <img src={userData?.avatarUrl} alt="avatar" />
           </div>
-          <h3 className='full-name'>OctoCat</h3>
-          <p className='username'>@octocat</p>
+          <h3 className='full-name'>{userData?.name || userData?.login}</h3>
+          <p className='username'>@{userData?.login}</p>
           <p className="date-joined">Joined 25 Jan 2011</p>
           <p className="bio">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod, repudiandae ipsum aliquid laborum doloremque alias et consequatur.</p>
           <section className='stats-section'>
