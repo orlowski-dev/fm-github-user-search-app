@@ -1,4 +1,4 @@
-$transitionTime: .13s;
+$transition: .13s ease;
 
 body {
   padding: 24px;
@@ -10,6 +10,12 @@ body {
     background-color: var(--bg-dark);
     color: var(--white);
   }
+}
+
+.visually-hidden {
+  opacity: 0;
+  z-index: -1;
+  position: absolute;
 }
 
 .d-fl {
@@ -27,7 +33,18 @@ body {
 .container {
   max-width: 470px;
   margin: 0 auto;
-  transition: max-width .13s ease-out;
+  transition: max-width $transition;
+
+  &.w-bg {
+    background-color: var(--white);
+    border-radius: 15px;
+    box-shadow: 0 16px 30px -10px rgba(70, 96, 187, 20%);
+
+    &.dark {
+      background-color: var(--dark-2);
+      box-shadow: unset;
+    }
+  }
 }
 
 .main-header {
@@ -37,6 +54,13 @@ body {
     span {
       font-size: 1.625rem;
       font-weight: 700;
+      color: var(--bg-dark);
+      transition: color $transition;
+      user-select: none;
+
+      &.dark {
+        color: var(--white);
+      }
     }
   }
 
@@ -51,7 +75,7 @@ body {
     justify-content: flex-end;
     color: var(--grayish-blue-1);
     text-transform: uppercase;
-    transition: $transitionTime ease-out;
+    transition: $transition;
 
     img {
       height: 20px;
@@ -63,9 +87,95 @@ body {
   }
 }
 
+main {
+  .searchbar-section {
+    padding: 0.5rem;
+    padding-left: 1rem;
+
+    form {
+      display: grid;
+      grid-template-columns: 20px auto 84px;
+      align-items: center;
+    }
+
+    .error {
+      display: none;
+    }
+
+    img {
+      width: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding-left: 8px;
+      font-size: 0.8125rem;
+      border: none;
+      background: none;
+      color: #222731;
+
+      &::placeholder {
+        color: var(--grayish-blue-1);
+      }
+
+      &.dark {
+        color: var(--white);
+
+        &::placeholder {
+          color: var(--white);
+        }
+      }
+    }
+
+    button {
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      border: none;
+      background-color: var(--primary-blue);
+      color: var(--white);
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+  }
+}
+
 @media screen and (min-width: 768px) {
   .container {
     max-width: 573px;
+  }
+
+  main {
+    .searchbar-section {
+      padding: 0.625rem;
+      padding-left: 2rem;
+
+      form {
+        grid-template-columns: 24px auto auto 100px;
+      }
+
+      img {
+        width: 24px;
+      }
+
+      .error {
+        display: block;
+        text-align: right;
+        padding-right: 24px;
+        font-size: 0.9375rem;
+        color: var(--danger);
+        font-weight: 700;
+      }
+
+      input {
+        padding-left: 24px;
+        font-size: 1.125rem;
+      }
+
+      button {
+        font-size: 1rem;
+      }
+    }
   }
 }
 
