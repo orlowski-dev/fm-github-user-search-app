@@ -1,4 +1,4 @@
-$transition: .13s ease;
+$transition: .15s ease;
 
 body {
   padding: 24px;
@@ -138,6 +138,166 @@ main {
       border-radius: 10px;
     }
   }
+
+  .result-section {
+    padding: 24px;
+    margin-top: 16px;
+
+    &.dark {
+      .user-info {
+        .full-name {
+          color: var(--white);
+        }
+
+        .stats-section {
+          background-color: var(--bg-dark);
+
+          .row {
+            p {
+              color: var(--white);
+            }
+          }
+        }
+
+        .additional-info-section {
+          .row {
+            a {
+              color: var(--white);
+            }
+          }
+        }
+      }
+
+    }
+
+    .user-info {
+      display: grid;
+      grid-template-areas:
+        "userPic fullName"
+        "userPic username"
+        "userPic dateJoined"
+        "bio bio"
+        "stats stats"
+        "addInfo addInfo"
+      ;
+      font-size: 0.8125rem;
+      grid-template-columns: 90px auto;
+
+      .user-picture-area {
+        grid-area: userPic;
+
+        img {
+          height: 70px;
+          width: 70px;
+          border-radius: 50%;
+        }
+      }
+
+      .full-name,
+      .username {
+        margin-bottom: 6px;
+      }
+
+      .full-name {
+        grid-area: fullName;
+        font-size: 1rem;
+        color: var(--dark-1);
+      }
+
+      .username {
+        grid-area: username;
+        color: var(--primary-blue);
+      }
+
+      .date-joined {
+        grid-area: dateJoined;
+      }
+
+      .bio {
+        grid-area: bio;
+        margin-top: 40px;
+      }
+
+      .stats-section {
+        grid-area: stats;
+        background-color: var(--bg-light);
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        border-radius: 10px;
+        padding: 10px;
+        margin-top: 30px;
+
+        .row {
+          h3 {
+            font-weight: 400;
+            font-size: 0.8125rem;
+          }
+
+          p {
+            font-weight: 700;
+            color: var(--dark-1);
+            font-size: 1rem;
+            transition: color $transition;
+          }
+        }
+      }
+
+      .additional-info-section {
+        grid-area: addInfo;
+        display: grid;
+        gap: 15px;
+        margin-top: 24px;
+        grid-template-areas:
+          "i0"
+          "i1"
+          "i2"
+          "i3";
+
+        .row {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+
+          &:nth-child(2) {
+            grid-area: i0;
+          }
+
+          &:nth-child(3) {
+            grid-area: i1;
+          }
+
+          &:nth-child(4) {
+            grid-area: i2;
+          }
+
+          &:nth-child(5) {
+            grid-area: i3;
+          }
+
+
+          a {
+            text-decoration: none;
+            color: var(--grayish-blue-1);
+          }
+
+          div {
+            width: 20px;
+            height: 20px;
+            text-align: center;
+
+            svg {
+              height: 20px;
+            }
+          }
+
+          &.not-av {
+            opacity: 0.5;
+          }
+        }
+      }
+    }
+  }
 }
 
 @media screen and (min-width: 768px) {
@@ -176,11 +336,79 @@ main {
         font-size: 1rem;
       }
     }
+
+    .result-section {
+      padding: 40px;
+
+      .user-info {
+        font-size: 0.9375rem;
+        grid-template-columns: 137px auto;
+
+        .user-picture-area img {
+          height: 117px;
+          width: 117px;
+        }
+
+        .full-name {
+          font-size: 1.625rem;
+        }
+
+        .username {
+          font-size: 1rem;
+        }
+
+        .stats-section {
+          gap: 100px;
+
+          .row {
+            p {
+              font-size: 1.375rem;
+            }
+          }
+        }
+
+        .additional-info-section {
+          grid-template-areas:
+            "i0 i2"
+            "i1 i3"
+          ;
+        }
+      }
+    }
   }
 }
 
 @media screen and (min-width: 1000px) {
   .container {
     max-width: 730px;
+  }
+
+  main {
+    .result-section {
+      padding: 44px;
+      padding-left: 48px;
+    }
+
+    .result-section .user-info {
+      grid-template-areas:
+        "userPic fullName dateJoined"
+        "userPic username username"
+        "userPic bio bio"
+        "userPic stats stats"
+        "userPic addInfo addInfo";
+      grid-template-columns: 153px auto auto;
+
+      .date-joined {
+        text-align: right;
+      }
+
+      .full-name {
+        margin-bottom: 0;
+      }
+
+      .bio {
+        margin-top: 28px;
+      }
+    }
   }
 }

@@ -1,3 +1,7 @@
 export { default as moonIcon } from './svg/icon-moon.svg'
 export { default as sunIcon } from './svg/icon-sun.svg'
 export { default as searchIcon } from './svg/icon-search.svg'
+export { default as locationIcon } from './svg/icon-location.svg'
+export { default as twitterIcon } from './svg/icon-twitter.svg'
+export { default as websiteIcon } from './svg/icon-website.svg'
+export { default as companyIcon } from './svg/icon-company.svg'
