@@ -5,7 +5,7 @@ import { ReactSVG } from 'react-svg'
 import { Octokit } from '@octokit/core'
 
 const octokit = new Octokit({
-  auth: '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'
+  auth: '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'
 })
 
 
@@ -21,6 +21,15 @@ interface IUserData {
   avatarUrl: string,
   name: string | null,
   login: string,
+  dateJoined: string,
+  bio: string | null,
+  publicRepos: number,
+  followers: number,
+  following: number,
+  location: string | null,
+  blog: string | null,
+  twitter: string | null | undefined,
+  company: string | null
 }
 
 export default function App() {
@@ -37,7 +46,7 @@ export default function App() {
   }, [colorScheme])
 
   // user data
-  const [userData, setUserData] = useState<IUserData | null>(null)
+  const [userData, setUserData] = useState<IUserData | null>()
   const getDataFromAPI = async (username: string) => {
     await octokit.request('GET /users/{username}', {
       username: username,
@@ -51,7 +60,16 @@ export default function App() {
       setUserData({
         avatarUrl: responseData.avatar_url,
         name: responseData.name,
-        login: responseData.login
+        login: responseData.login,
+        dateJoined: responseData.created_at,
+        bio: responseData.bio,
+        publicRepos: responseData.public_repos,
+        followers: responseData.followers,
+        following: responseData.following,
+        location: responseData.location,
+        blog: responseData.blog,
+        twitter: responseData.twitter_username,
+        company: responseData.company
       })
 
 
@@ -60,21 +78,30 @@ export default function App() {
     })
   }
 
+  // date
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
+  const formatDate = (rawDate: string | null | undefined) => {
+    if (!rawDate) return 'not found'
+    const date = new Date(rawDate)
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`
+  }
+
   // get data after render
   useEffect(() => {
     getDataFromAPI('octocat')
   }, [])
 
   // form
-  const [isBtnDisabled, setIsBtnDisabled] = useState(false)
-  useEffect(() => {
-    isBtnDisabled ? formElems.buttonRef.current?.classList.add('loading') : formElems.buttonRef.current?.removeAttribute('class')
-  }, [isBtnDisabled])
   const formElems = {
     inputRef: useRef<HTMLInputElement>(null),
     errorSpanRef: useRef<HTMLSpanElement>(null),
     buttonRef: useRef<HTMLButtonElement>(null)
   }
+  const [isBtnDisabled, setIsBtnDisabled] = useState(false)
+  useEffect(() => {
+    isBtnDisabled ? formElems.buttonRef.current?.classList.add('loading') : formElems.buttonRef.current?.removeAttribute('class')
+  }, [isBtnDisabled, formElems.buttonRef])
+
   const handleSearchFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -143,41 +170,45 @@ export default function App() {
           </div>
           <h3 className='full-name'>{userData?.name || userData?.login}</h3>
           <p className='username'>@{userData?.login}</p>
-          <p className="date-joined">Joined 25 Jan 2011</p>
-          <p className="bio">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod, repudiandae ipsum aliquid laborum doloremque alias et consequatur.</p>
+          <p className="date-joined">Joined {formatDate(userData?.dateJoined)}</p>
+          <p className="bio">{userData?.bio || 'This user has no set bio'}</p>
           <section className='stats-section'>
             <div className="row">
               <h3>Repos</h3>
-              <p>8</p>
+              <p>{userData?.publicRepos || '-'}</p>
             </div>
             <div className="row">
               <h3>Followers</h3>
-              <p>8</p>
+              <p>{userData?.followers || '-'}</p>
             </div>
             <div className="row">
               <h3>Following</h3>
-              <p>8</p>
+              <p>{userData?.following || '-'}</p>
             </div>
           </section>
           <section className="additional-info-section">
             <h2 className="visually-hidden">Addition info</h2>
-            <div className="row">
+            <div className={`row ${!userData?.location && 'not-av'}`}>
               <ReactSVG src={locationIcon} desc="location icon" />
-              <p>San Francisco</p>
+              <p>{userData?.location || 'not found'}</p>
             </div>
-            <div className="row">
+            <div className={`row ${!userData?.blog && 'not-av'}`}>
               <ReactSVG src={websiteIcon} desc="website icon" />
               <p>
-                <a href="" target='_blank' rel='noreferrer'>San</a>
+                {
+                  userData?.blog &&
+                  <a href={userData.blog} target='_blank' rel='noreferrer'>{userData.blog}</a> ||
+                  'not found'
+                }
               </p>
             </div>
-            <div className="row not-av">
+            <div className={`row ${!userData?.twitter && 'not-av'}`}>
               <ReactSVG src={twitterIcon} desc="twitter icon" />
-              <p>Not Available</p>
+              {userData?.twitter || 'not found'}
             </div>
-            <div className="row">
+            <div className={`row ${!userData?.company && 'not-av'}`}>
               <ReactSVG src={companyIcon} desc="company icon" />
-              <p>San Francisco</p>
+              {userData?.company || 'not found'}
             </div>
           </section>
         </article>
