@@ -5,7 +5,7 @@ import { ReactSVG } from 'react-svg'
 import { Octokit } from '@octokit/core'
 
 const octokit = new Octokit({
-  auth: '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'
+  auth: ''
 })
 
 
@@ -48,14 +48,13 @@ export default function App() {
   // user data
   const [userData, setUserData] = useState<IUserData | null>()
   const getDataFromAPI = async (username: string) => {
-    await octokit.request('GET /users/{username}', {
+    return await octokit.request('GET /users/{username}', {
       username: username,
       headers: {
         'X-GitHub-Api-Version': '2022-11-28'
       }
     }).then((response) => {
       const responseData = response.data;
-      console.log(responseData);
 
       setUserData({
         avatarUrl: responseData.avatar_url,
@@ -72,9 +71,11 @@ export default function App() {
         company: responseData.company
       })
 
+      return true
 
     }).catch(() => {
       console.log('cannot fetch data, 404')
+      return false
     })
   }
 
@@ -104,13 +105,17 @@ export default function App() {
 
   const handleSearchFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    formElems.errorSpanRef.current?.classList.remove('visible')
 
     const inputValue: string | null | undefined = formElems.inputRef.current?.value
     if (!inputValue) return
     if (inputValue.length < 3) return
 
     setIsBtnDisabled(true)
-    await getDataFromAPI(inputValue)
+    const apiRequestOk = await getDataFromAPI(inputValue)
+    if (!apiRequestOk) {
+      formElems.errorSpanRef.current?.classList.add('visible')
+    }
     setIsBtnDisabled(false)
   }
 
@@ -132,7 +137,10 @@ export default function App() {
     </header>
     <main>
       {/* searchbar section */}
-      <section className={`searchbar-section container w-bg ${colorScheme}`}>
+      <section
+        className={`searchbar-section container w-bg ${colorScheme}`}
+        onClick={() => formElems.inputRef.current?.focus()}
+      >
         <h2 className='visually-hidden'>Searchbar section</h2>
         <form onSubmit={handleSearchFormSubmit}>
           <img src={searchIcon} alt='search icon' />
@@ -151,7 +159,7 @@ export default function App() {
             className="error"
             id='form-error'
             ref={formElems.errorSpanRef}
-          ></span>
+          >No results</span>
           <button
             disabled={isBtnDisabled}
             ref={formElems.buttonRef}
@@ -214,5 +222,10 @@ export default function App() {
         </article>
       </section>
     </main>
+    {/* footer */}
+    <footer className="main-footer container">
+      <p>Created by <a href="https://www.frontendmentor.io/profile/orlowski-dev" target='_blank' rel='noreferrer'>@orlowski-dev</a></p>
+      <p>with ReactJS + Vite + TypeScript</p>
+    </footer>
   </>)
 }
